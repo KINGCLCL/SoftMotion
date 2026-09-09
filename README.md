@@ -1,3 +1,8 @@
+  
+A simple tool for adding subtle motion effects to static images.<img width="768" height="768" alt="28c28500-eb6a-40d7-95fc-ee40a5307b53_motion" src="https://github.com/user-attachments/assets/080abc55-b7b5-468a-8a7f-25b84ea8a704" />
+
+
+
 # SoftMotion
 
 一个为静态 2D 图片和游戏素材添加轻量程序化动态效果的小工具。  
@@ -45,8 +50,4 @@ Icons.
 游戏插画  
 Game illustrations.
 
-只是一个简单的将静态图片施加微弱动态效果的小工具。  
-A simple tool for adding subtle motion effects to static images.<img width="768" height="768" alt="28c28500-eb6a-40d7-95fc-ee40a5307b53_motion" src="https://github.com/user-attachments/assets/080abc55-b7b5-468a-8a7f-25b84ea8a704" />
-
-
-
+只是一个简单的将静态图片施加微弱动态效果的小工具。
