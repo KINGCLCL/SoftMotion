@@ -1,0 +1,34 @@
+{
+  "frames": 120,
+  "fps": 24.0,
+  "duration_seconds": 5.0,
+  "size": [
+    384,
+    512
+  ],
+  "cycles": 1,
+  "motion": {
+    "float_px": 3.0,
+    "breath_percent": 0.6,
+    "sway_degrees": 0.4,
+    "speed": 1.0,
+    "idle_breath_percent": 0.0,
+    "weight_shift_px": 0.0,
+    "lean_degrees": 0.0,
+    "anchor_feet": false
+  },
+  "pattern": "frame_%05d.png",
+  "alpha": true,
+  "scene": {
+    "width": 384,
+    "height": 512,
+    "background": "transparent",
+    "color": "#12151c",
+    "crop": [
+      38,
+      10,
+      124,
+      299
+    ]
+  }
+}

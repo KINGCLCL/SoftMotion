@@ -1,0 +1,7 @@
+imageio-ffmpeg==0.6.0
+numpy==2.5.3
+pillow==12.3.0
+PySide6==6.11.2
+PySide6_Addons==6.11.2
+PySide6_Essentials==6.11.2
+shiboken6==6.11.2
