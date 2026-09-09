@@ -18,9 +18,6 @@ Supports PNG image sequences, GIF, and MP4 formats.
 - Sway：轻微摇摆  
   Sway: Gentle swaying motion.
 
-- 支持 PNG / JPG / JPEG / WebP  
-  Supports PNG / JPG / JPEG / WebP.
-
 - 实时预览  
   Real-time preview.
 
