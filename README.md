@@ -1,19 +1,61 @@
 
+<img width="768" height="768" alt="e551d414-6504-400f-8712-1e98d28d4c89_motion" src="https://github.com/user-attachments/assets/092ceab7-a890-4881-b29f-8c59f533d9a0" />
 
-https://github.com/user-attachments/assets/4c38e555-e6e8-4a1b-aae0-f212a6da1a6f
 
   
 A simple tool for adding subtle motion effects to static images.<img width="768" height="768" alt="28c28500-eb6a-40d7-95fc-ee40a5307b53_motion" src="https://github.com/user-attachments/assets/080abc55-b7b5-468a-8a7f-25b84ea8a704" />
 
-
+<img width="415" height="377" alt="image" src="https://github.com/user-attachments/assets/89877a2f-1c47-488d-abd2-9143764647b7" />
 
 # SoftMotion
-lightweight procedural motion tool for static 2D images and game assets
 
-在“动态效果”中选择“渐变透明循环 Fade Loop”预设，即可让图片平滑淡出再淡入。也可调整“透明循环幅度 Fade”与其他运动叠加：0% 关闭，100% 完全淡出。“播放速度”为 1× 时每 5 秒循环一次，暂停和重置沿用现有控制。
+一个为静态 2D 图片和游戏素材添加轻量程序化动态效果的小工具。  
+A lightweight tool for adding subtle procedural motion effects to static 2D images and game assets.
 
-预览和导出均应用该效果。PNG 序列保留渐变透明度；MP4 或纯色背景 GIF 将淡出效果合成到背景上。透明背景 GIF 仅支持全透明或不透明，无法保留连续透明度。
+可以将它用于制作一些动态表情包或者游戏场景素材。  
+It can be used to create animated stickers, memes, or game scene assets.
 
-在“人物部位 Character Parts”页可以为立绘添加局部动画：新增部位后，用画笔、橡皮、套索或椭圆选择区域；用“保护区”涂出脸部等不应变形的位置；再设置绿色固定端、黄色活动端和部位类型。头发、衣摆、饰品、身体分别使用不同的运动模型，区域可以复制、删除、启用或单独预览。工程通过“工程 Project”菜单保存为 `.softmotion` 文件，图片、蒙版、背景、裁剪和参数会一起保存。
+支持连续 PNG 图片、GIF 与 MP4 格式。  
+Supports PNG image sequences, GIF, and MP4 formats.
 
-点击“放大编辑区域”可在大窗口中涂选，滚轮缩放、中键平移、按 0 归位；Ctrl+Z 撤销、Ctrl+Y 重做。“擦除保护区”可以修正保护蒙版。涂选和平移期间动画暂时冻结，松手后恢复。人物动画预览使用最长边 512 px 的工作图以减少卡顿，选区编辑、工程存储和导出仍保留载入图片的完整尺寸；预览细节可能比最终导出略软。
+- Float：轻微漂浮  
+  Float: Gentle floating motion.
+
+- Breath：呼吸缩放  
+  Breath: Subtle breathing scale effect.
+
+- Sway：轻微摇摆  
+  Sway: Gentle swaying motion.
+
+- 支持 PNG / JPG / JPEG / WebP  
+  Supports PNG / JPG / JPEG / WebP.
+
+- 实时预览  
+  Real-time preview.
+
+- 可调速度与幅度  
+  Adjustable speed and intensity.
+
+- Play / Pause / Reset  
+  Play / Pause / Reset.
+
+适合用于：  
+Suitable for:
+
+2D 人物立绘  
+2D character illustrations.
+
+卡牌素材  
+Card game assets.
+
+UI 元素  
+UI elements.
+
+图标  
+Icons.
+
+游戏插画  
+Game illustrations.
+
+只是一个简单的将静态图片施加微弱动态效果的小工具。  
+A simple tool for adding subtle motion effects to static images.
