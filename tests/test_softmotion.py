@@ -15,6 +15,20 @@ from softmotion.ui.theme import STYLE
 
 
 class MotionTests(unittest.TestCase):
+    def test_fade_loop_extremes_and_seam(self):
+        for amount in (0, 40, 100):
+            settings = MotionSettings(fade_percent=amount)
+            self.assertEqual(sample_pose(0, settings).opacity, 1)
+            self.assertAlmostEqual(sample_pose(0.5, settings).opacity, 1 - amount / 100)
+            self.assertAlmostEqual(sample_pose(0.25, settings).opacity, 1 - amount / 200)
+            for index in range(101):
+                phase = index / 100
+                self.assertTrue(1 - amount / 100 <= sample_pose(phase, settings).opacity <= 1)
+                self.assertAlmostEqual(sample_pose(phase, settings).opacity,
+                                       sample_pose(phase + 1, settings).opacity)
+            self.assertAlmostEqual(sample_pose(1 - 1e-6, settings).opacity,
+                                   sample_pose(1e-6, settings).opacity)
+
     def test_periodicity_and_bounds(self):
         settings = MotionSettings(12, 3, 3)
         for phase in (0, 0.125, 0.25, 0.5, 0.75, 0.875):
@@ -110,6 +124,14 @@ class ImageAndGuiTests(unittest.TestCase):
             window.sliders["float_px"].setValue(120)
             window.sliders["breath_percent"].setValue(30)
             window.sliders["sway_degrees"].setValue(30)
+            preset_box = window.motion_panel.preset_box
+            preset_box.setCurrentIndex(preset_box.findData("渐变透明循环"))
+            self.assertEqual(window.preview.settings.fade_percent, 100)
+            self.assertEqual(window.preview.settings.float_px, 0)
+            self.assertEqual(window.preview.phase, 0)
+            window.sliders["fade_percent"].setValue(40)
+            self.assertEqual(window.preview.settings.fade_percent, 40)
+            self.assertEqual(preset_box.currentIndex(), 0)
             window.resize(820, 560)
             QTest.qWait(40)
             self.assertFalse(window.grab().isNull())

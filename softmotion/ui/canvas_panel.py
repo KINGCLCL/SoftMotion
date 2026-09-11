@@ -30,7 +30,7 @@ class CropView(QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
         if self.image.isNull():
-            painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, "导入图片后可拖动框选")
+            painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextWordWrap, "导入图片后可拖动框选 Import an image, then drag to crop")
             return
         rect = self.image_rect()
         draw_checkerboard(painter, rect)
@@ -85,7 +85,7 @@ class CanvasPanel(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(16, 16, 16, 16)
         layout.setSpacing(12)
-        title = QLabel("输出画布")
+        title = QLabel("输出画布 Output Canvas")
         title.setObjectName("section")
         layout.addWidget(title)
         form = QFormLayout()
@@ -97,42 +97,42 @@ class CanvasPanel(QWidget):
             box.setValue(value)
             box.setSuffix(" px")
             box.valueChanged.connect(self.update_scene)
-        form.addRow("输出宽度", self.width_box)
-        form.addRow("输出高度", self.height_box)
+        form.addRow("输出宽度 Width", self.width_box)
+        form.addRow("输出高度 Height", self.height_box)
         self.background_box = QComboBox()
-        for name, value in [("透明", "transparent"), ("纯色", "solid"), ("自选图片", "image")]:
+        for name, value in [("透明 Transparent", "transparent"), ("纯色 Solid Color", "solid"), ("自选图片 Custom Image", "image")]:
             self.background_box.addItem(name, value)
         self.background_box.currentIndexChanged.connect(self.update_scene)
-        form.addRow("背景", self.background_box)
+        form.addRow("背景 Background", self.background_box)
         layout.addLayout(form)
-        self.color_button = QPushButton("背景颜色：#12151c")
+        self.color_button = QPushButton("背景颜色 Background Color：#12151c")
         self.color_button.clicked.connect(self.choose_color)
         layout.addWidget(self.color_button)
-        self.background_button = QPushButton("选择背景图片…")
+        self.background_button = QPushButton("选择背景图片… Choose Background Image…")
         self.background_button.clicked.connect(self.choose_background)
         layout.addWidget(self.background_button)
-        label = QLabel("素材裁剪")
+        label = QLabel("素材裁剪 Crop")
         label.setObjectName("section")
         label.setWordWrap(True)
         layout.addWidget(label)
         self.crop_view = CropView()
-        self.crop_view.setToolTip("在缩略图上拖动框选，或在下方输入精确坐标")
+        self.crop_view.setToolTip("在缩略图上拖动框选，或在下方输入精确坐标 Drag on the thumbnail to crop, or enter exact coordinates below")
         self.crop_view.crop_changed.connect(self.set_crop)
         layout.addWidget(self.crop_view)
         crop_form = QFormLayout()
         crop_form.setVerticalSpacing(8)
         self.crop_boxes = []
-        for label in ("左侧 X", "顶部 Y", "裁剪宽度", "裁剪高度"):
+        for label in ("左侧 X Left X", "顶部 Y Top Y", "裁剪宽度 Crop Width", "裁剪高度 Crop Height"):
             box = QSpinBox()
             box.setRange(0, 2048)
             box.valueChanged.connect(self.crop_edited)
             crop_form.addRow(label, box)
             self.crop_boxes.append(box)
         layout.addLayout(crop_form)
-        reset = QPushButton("恢复完整素材")
+        reset = QPushButton("恢复完整素材 Restore Full Image")
         reset.clicked.connect(self.reset_crop)
         layout.addWidget(reset)
-        self.info = QLabel("裁剪不修改原文件。棋盘格仅用于预览透明度。\n背景图居中铺满画布；素材原有背景不会被自动移除。")
+        self.info = QLabel("裁剪不修改原文件。棋盘格仅用于预览透明度。 Cropping keeps the original file intact. The checkerboard previews transparency.\n背景图居中铺满画布；素材原有背景不会被自动移除。 The background image fills the canvas from the center. Existing asset backgrounds are not removed automatically.")
         self.info.setWordWrap(True)
         self.info.setObjectName("hint")
         layout.addWidget(self.info)
@@ -148,30 +148,45 @@ class CanvasPanel(QWidget):
         self.preview.update()
 
     def choose_color(self):
-        color = QColorDialog.getColor(QColor(self.preview.scene.background_color), self, "选择背景颜色")
+        color = QColorDialog.getColor(QColor(self.preview.scene.background_color), self, "选择背景颜色 Choose Background Color")
         if color.isValid():
             self.preview.scene.background_color = color.name()
-            self.color_button.setText(f"背景颜色：{color.name()}")
+            self.color_button.setText(f"背景颜色 Background Color：{color.name()}")
             self.preview.update()
 
     def choose_background(self):
-        path, _ = QFileDialog.getOpenFileName(self, "选择背景图片", "", "图片 (*.png *.jpg *.jpeg *.webp)")
+        path, _ = QFileDialog.getOpenFileName(self, "选择背景图片 Choose Background Image", "", "图片 Images (*.png *.jpg *.jpeg *.webp)")
         if path:
             try:
                 asset = load_image(path)
             except ValueError as exc:
-                QMessageBox.warning(self, "背景导入失败", str(exc))
+                QMessageBox.warning(self, "背景导入失败 Background Import Failed", str(exc))
                 return
             self.preview.scene.background_image = asset.preview
-            self.background_button.setText("已选背景 · 点击更换")
+            self.background_button.setText("已选背景 · 点击更换 Background Selected · Click to Change")
             self.background_button.setToolTip(str(asset.path))
             self.preview.update()
 
     def set_source(self, image):
         self.crop_view.image = image.copy()
-        self.info.setText(f"裁剪坐标基于载入图：{image.width()} × {image.height()} px（最长边 2048）。\n"
-                          "裁剪不修改原文件。棋盘格不会导出。\n背景图居中铺满画布；素材原有背景不会被自动移除。")
+        self.info.setText(f"裁剪坐标基于载入图： Crop coordinates use the loaded image:{image.width()} × {image.height()} px（最长边 2048）。  (Longest edge: 2048).\n"
+                          "裁剪不修改原文件。棋盘格不会导出。 Cropping keeps the original file intact. The checkerboard is not exported.\n背景图居中铺满画布；素材原有背景不会被自动移除。 The background image fills the canvas from the center. Existing asset backgrounds are not removed automatically.")
         self.reset_crop()
+
+    def set_scene(self, scene):
+        """Synchronize controls from a loaded project scene."""
+        self._syncing = True
+        self.width_box.setValue(scene.width)
+        self.height_box.setValue(scene.height)
+        self.background_box.setCurrentIndex(self.background_box.findData(scene.background_mode))
+        self.preview.scene.background_color = scene.background_color
+        self.color_button.setText(f"背景颜色 Background Color：{scene.background_color}")
+        self.background_button.setText("已选背景 · 点击更换 Background Selected · Click to Change"
+                                      if scene.background_mode == "image" and not scene.background_image.isNull()
+                                      else "选择背景图片… Choose Background Image…")
+        self._syncing = False
+        self.update_scene()
+        self.set_crop(scene.crop or (0, 0, self.preview.image.width(), self.preview.image.height()))
 
     def reset_crop(self):
         image = self.preview.image

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from math import sin, tau
+from math import cos, sin, tau
 
 
 @dataclass
@@ -12,6 +12,7 @@ class MotionSettings:
     weight_shift_px: float = 0.0
     lean_degrees: float = 0.0
     anchor_feet: bool = False
+    fade_percent: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -23,6 +24,7 @@ class Pose:
     stretch_y: float = 1.0
     weight_shift: float = 0.0
     lean: float = 0.0
+    opacity: float = 1.0
 
 
 def sample_pose(phase: float, settings: MotionSettings) -> Pose:
@@ -37,7 +39,8 @@ def sample_pose(phase: float, settings: MotionSettings) -> Pose:
                 1.0 - settings.idle_breath_percent / 100.0 * wave * 0.3,
                 1.0 + settings.idle_breath_percent / 100.0 * wave,
                 settings.weight_shift_px * (wave + 0.2 * sin(2 * tau * (phase % 1.0))),
-                settings.lean_degrees * wave)
+                settings.lean_degrees * wave,
+                1.0 - settings.fade_percent / 100.0 * (1.0 - cos(tau * (phase % 1.0))) / 2.0)
 
 
 PRESETS = {
@@ -45,4 +48,5 @@ PRESETS = {
     "人物 · 自然待机": MotionSettings(0, 0, 0, 0.8, 0.8, 2.0, 0.25, True),
     "人物 · 警戒待机": MotionSettings(0, 0, 0, 1.1, 0.5, 1.0, 0.2, True),
     "人物 · 疲惫待机": MotionSettings(0, 0, 0, 0.6, 1.5, 4.0, 0.6, True),
+    "渐变透明循环": MotionSettings(float_px=0, breath_percent=0, sway_degrees=0, fade_percent=100),
 }

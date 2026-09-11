@@ -3,17 +3,23 @@ from PySide6.QtCore import QRectF
 from PySide6.QtGui import QColor, QPainter
 
 from softmotion.motion.effects import sample_pose
+from softmotion.character.renderer import CharacterRenderer
 
 
-def draw_artwork(painter, image, viewport, phase, settings, crop=None):
+def draw_artwork(painter, image, viewport, phase, settings, crop=None, character=None, character_renderer=None):
     width, height = viewport
-    source = QRectF(*crop) if crop is not None else QRectF(image.rect())
+    artwork = image
+    if character is not None and character.enabled and character.regions:
+        renderer = character_renderer or CharacterRenderer(image, character)
+        artwork = renderer.render(image, phase)
+    source = QRectF(*crop) if crop is not None else QRectF(artwork.rect())
     margin = min(40, min(width, height) * 0.08)
     fit = min((width - 2 * margin) / source.width(),
               (height - 2 * margin) / source.height()) * 0.84
     w, h = source.width() * fit, source.height() * fit
     pose = sample_pose(phase, settings)
     painter.save()
+    painter.setOpacity(painter.opacity() * pose.opacity)
     painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
     painter.setRenderHint(QPainter.RenderHint.Antialiasing)
     foot_anchor = settings.anchor_feet
@@ -21,11 +27,11 @@ def draw_artwork(painter, image, viewport, phase, settings, crop=None):
     painter.rotate(pose.rotation + pose.lean)
     painter.shear(-pose.weight_shift / h, 0)
     painter.scale(pose.scale * pose.stretch_x, pose.scale * pose.stretch_y)
-    painter.drawImage(QRectF(-w / 2, -h if foot_anchor else -h / 2, w, h), image, source)
+    painter.drawImage(QRectF(-w / 2, -h if foot_anchor else -h / 2, w, h), artwork, source)
     painter.restore()
 
 
-def draw_scene(painter, image, scene, phase, settings, mp4_background=None):
+def draw_scene(painter, image, scene, phase, settings, mp4_background=None, character=None, character_renderer=None):
     """Draw actual output pixels; checkerboards and crop guides never enter exports."""
     canvas = QRectF(0, 0, scene.width, scene.height)
     painter.save()
@@ -40,7 +46,7 @@ def draw_scene(painter, image, scene, phase, settings, mp4_background=None):
         w, h = background.width() * factor, background.height() * factor
         painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
         painter.drawImage(QRectF((scene.width - w) / 2, (scene.height - h) / 2, w, h), background)
-    draw_artwork(painter, image, (scene.width, scene.height), phase, settings, scene.crop)
+    draw_artwork(painter, image, (scene.width, scene.height), phase, settings, scene.crop, character, character_renderer)
     painter.restore()
 
 

@@ -5,6 +5,8 @@ from PySide6.QtGui import QColor, QImage, QPainter, QPixmap
 from PySide6.QtWidgets import QPushButton, QVBoxLayout, QWidget
 
 from softmotion.motion.effects import MotionSettings
+from softmotion.character.model import CharacterSettings
+from softmotion.character.renderer import PreviewCharacterRenderer
 from softmotion.imaging.render import draw_checkerboard, draw_scene
 from softmotion.imaging.scene import SceneSettings
 from softmotion.ui.icons import icon
@@ -18,6 +20,14 @@ class Preview(QWidget):
         super().__init__(parent)
         self.setMinimumSize(360, 300)
         self.settings = MotionSettings()
+        self.character = CharacterSettings()
+        self.character_renderer = PreviewCharacterRenderer()
+        self.character_dirty = False
+        self.editing_character = False
+        self.character_update_timer = QTimer(self)
+        self.character_update_timer.setSingleShot(True)
+        self.character_update_timer.setInterval(60)
+        self.character_update_timer.timeout.connect(self._prepare_character)
         self.scene = SceneSettings()
         self.pixmap = QPixmap()
         self.image = QImage()
@@ -26,7 +36,7 @@ class Preview(QWidget):
         self._last_time = perf_counter()
         self.timer = QTimer(self)
         self.timer.setTimerType(Qt.TimerType.PreciseTimer)
-        self.timer.setInterval(16)
+        self.timer.setInterval(33)
         self.timer.timeout.connect(self._tick)
         empty_layout = QVBoxLayout(self)
         empty_layout.addStretch()
@@ -34,7 +44,7 @@ class Preview(QWidget):
         self.empty_state.setObjectName("emptyState")
         content = QVBoxLayout(self.empty_state)
         content.setSpacing(15)
-        action = QPushButton("选择一张图片")
+        action = QPushButton("选择一张图片 Choose an Image")
         action.setObjectName("primary")
         action.setIcon(icon("image", "#15182b"))
         action.clicked.connect(self.import_requested)
@@ -46,6 +56,10 @@ class Preview(QWidget):
         self.pause()
         self.pixmap = QPixmap.fromImage(image)
         self.image = image.copy()
+        self.character_update_timer.stop()
+        self.character_dirty = False
+        self.character = CharacterSettings()
+        self.character_renderer.prepare(self.image, self.character)
         self.empty_state.hide()
         self.scene.crop = (0, 0, image.width(), image.height())
         self.phase = 0.0
@@ -81,6 +95,23 @@ class Preview(QWidget):
         setattr(self.settings, name, value)
         self.update()
 
+    def set_character_settings(self, settings):
+        self.character = settings.snapshot()
+        self.character_dirty = True
+        self.character_update_timer.start()
+
+    def _prepare_character(self):
+        if self.editing_character:
+            return
+        self.character_renderer.prepare(self.image, self.character)
+        self.character_dirty = False
+        self.update()
+
+    def set_character_editing(self, editing):
+        self.editing_character = editing
+        if not editing and self.character_dirty:
+            self.character_update_timer.start()
+
     def _advance(self):
         now = perf_counter()
         # Speed changes affect future phase only. Pause time is never included.
@@ -92,6 +123,8 @@ class Preview(QWidget):
         self.update()
 
     def paintEvent(self, event):
+        if not self.editing_character and self.character_dirty and self.character_renderer.cached is None:
+            self._prepare_character()
         painter = QPainter(self)
         painter.fillRect(self.rect(), QColor("#131720"))
         painter.setPen(QColor("#272e3d"))
@@ -110,7 +143,15 @@ class Preview(QWidget):
         painter.save()
         painter.translate(left, top)
         painter.scale(scale, scale)
-        draw_scene(painter, self.image, self.scene, self.phase, self.settings)
+        phase = self.phase
+        character = self.character
+        if self.editing_character:
+            if self.character_renderer.cached is None:
+                character = None
+            else:
+                phase = self.character_renderer.cache_phase
+        draw_scene(painter, self.image, self.scene, phase, self.settings,
+                   character=character, character_renderer=self.character_renderer)
         painter.restore()
         painter.setPen(QColor("#58647a"))
         painter.drawRect(rect)

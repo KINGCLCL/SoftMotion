@@ -110,6 +110,7 @@ class ExportTests(unittest.TestCase):
         self.assertEqual(list(self.folder.glob(".softmotion-*")), [])
 
     def test_preview_matches_export(self):
+        self.settings.fade_percent = 80
         window = MainWindow()
         window.show()
         try:

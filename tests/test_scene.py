@@ -60,6 +60,22 @@ class SceneTests(unittest.TestCase):
         self.scene.crop = (40, 0, 40, 100)
         self.assertEqual(self.render().getpixel((64, 80)), (0, 128, 0, 255))
 
+    def test_fade_preserves_source_alpha_and_background(self):
+        self.motion = MotionSettings(0, 0, 0, fade_percent=100)
+        self.assertEqual(self.render(0).getpixel((64, 80))[3], 200)
+        self.assertAlmostEqual(self.render(0.25).getpixel((64, 80))[3], 100, delta=1)
+        self.assertEqual(self.render(0.5).getpixel((64, 80))[3], 0)
+        self.assertEqual(self.render(0).tobytes(), self.render(1).tobytes())
+        self.assertEqual(self.source.pixelColor(40, 50).alpha(), 200)
+        for mode in ("solid", "image"):
+            self.scene.background_mode = mode
+            self.scene.background_color = "#3344cc"
+            self.scene.background_image = QImage(30, 10, QImage.Format.Format_RGBA8888)
+            self.scene.background_image.fill(QColor("#3344cc"))
+            frame = self.render(0.5)
+            self.assertEqual(frame.getpixel((64, 80)), (51, 68, 204, 255))
+            self.assertEqual(frame.getpixel((0, 0)), (51, 68, 204, 255))
+
     def test_idle_feet_stay_grounded_and_cycles_do_not_drift(self):
         first = np.asarray(self.render(0))[:, :, 3]
         moved = np.asarray(self.render(0.25))[:, :, 3]
@@ -144,7 +160,8 @@ class SceneTests(unittest.TestCase):
             x, y, w, h = window.preview.scene.crop
             self.assertTrue(14 <= x <= 18 and 18 <= y <= 22)
             self.assertTrue(46 <= w <= 50 and 58 <= h <= 62)
-            window.motion_panel.preset_box.setCurrentText("人物 · 自然待机")
+            preset_box = window.motion_panel.preset_box
+            preset_box.setCurrentIndex(preset_box.findData("人物 · 自然待机"))
             self.assertEqual(window.preview.settings, PRESETS["人物 · 自然待机"])
             scene = window.preview.scene.metadata()
             window.resize(900, 620)
