@@ -1,3 +1,7 @@
+
+
+https://github.com/user-attachments/assets/4c38e555-e6e8-4a1b-aae0-f212a6da1a6f
+
   
 A simple tool for adding subtle motion effects to static images.<img width="768" height="768" alt="28c28500-eb6a-40d7-95fc-ee40a5307b53_motion" src="https://github.com/user-attachments/assets/080abc55-b7b5-468a-8a7f-25b84ea8a704" />
 
